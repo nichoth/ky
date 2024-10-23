@@ -1,5 +1,5 @@
 {
-	"name": "ky",
+	"name": "@nichoth/ky",
 	"version": "1.7.2",
 	"description": "Tiny and elegant HTTP client based on the Fetch API",
 	"license": "MIT",
