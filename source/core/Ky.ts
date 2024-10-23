@@ -29,11 +29,17 @@ export class Ky {
 		const ky = new Ky(input, options);
 
 		const function_ = async (): Promise<Response> => {
-			if (typeof ky._options.timeout === 'number' && ky._options.timeout > maxSafeTimeout) {
-				throw new RangeError(`The \`timeout\` option cannot be greater than ${maxSafeTimeout}`);
+			if (
+				typeof ky._options.timeout === 'number' &&
+				ky._options.timeout > maxSafeTimeout
+			) {
+				throw new RangeError(
+					`The \`timeout\` option cannot be greater than ${maxSafeTimeout}`
+				);
 			}
 
-			// Delay the fetch so that body method shortcuts can set the Accept header
+			// Delay the fetch so that body method shortcuts can set the
+			// Accept header
 			await Promise.resolve();
 			let response = await ky._fetch();
 
@@ -53,7 +59,11 @@ export class Ky {
 			ky._decorateResponse(response);
 
 			if (!response.ok && ky._options.throwHttpErrors) {
-				let error = new HTTPError(response, ky.request, ky._options as NormalizedOptions);
+				let error = new HTTPError(
+					response,
+					ky.request,
+					(ky._options as unknown) as NormalizedOptions
+				);
 
 				for (const hook of ky._options.hooks.beforeError) {
 					// eslint-disable-next-line no-await-in-loop
@@ -67,26 +77,44 @@ export class Ky {
 			/* istanbul ignore next */
 			if (ky._options.onDownloadProgress) {
 				if (typeof ky._options.onDownloadProgress !== 'function') {
-					throw new TypeError('The `onDownloadProgress` option must be a function');
+					throw new TypeError(
+						'The `onDownloadProgress` option must be a function'
+					);
 				}
 
 				if (!supportsResponseStreams) {
-					throw new Error('Streams are not supported in your environment. `ReadableStream` is missing.');
+					throw new Error(
+						'Streams are not supported in your environment. `ReadableStream` is missing.'
+					);
 				}
 
-				return ky._stream(response.clone(), ky._options.onDownloadProgress);
+				return ky._stream(
+					response.clone(),
+					ky._options.onDownloadProgress
+				);
 			}
 
 			return response;
 		};
 
-		const isRetriableMethod = ky._options.retry.methods.includes(ky.request.method.toLowerCase());
-		const result = (isRetriableMethod ? ky._retry(function_) : function_()) as ResponsePromise;
+		const isRetriableMethod = ky._options.retry.methods.includes(
+			ky.request.method.toLowerCase()
+		);
 
-		for (const [type, mimeType] of Object.entries(responseTypes) as ObjectEntries<typeof responseTypes>) {
+		const result = (isRetriableMethod ?
+			ky._retry(function_) :
+			function_()) as ResponsePromise;
+
+		for (
+			const [type, mimeType] of Object.entries(responseTypes) as
+				ObjectEntries<typeof responseTypes>
+		) {
 			result[type] = async () => {
 				// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-				ky.request.headers.set('accept', ky.request.headers.get('accept') || mimeType);
+				ky.request.headers.set(
+					'accept',
+					ky.request.headers.get('accept') || mimeType
+				);
 
 				const awaitedResult = await result;
 				const response = awaitedResult.clone();
@@ -136,7 +164,9 @@ export class Ky {
 				},
 				options.hooks,
 			),
-			method: normalizeRequestMethod(options.method ?? (this._input as Request).method),
+			method: normalizeRequestMethod(
+				options.method ?? (this._input as Request).method
+			),
 			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 			prefixUrl: String(options.prefixUrl || ''),
 			retry: normalizeRetryOptions(options.retry),
@@ -145,7 +175,13 @@ export class Ky {
 			fetch: options.fetch ?? globalThis.fetch.bind(globalThis),
 		};
 
-		if (typeof this._input !== 'string' && !(this._input instanceof URL || this._input instanceof globalThis.Request)) {
+		if (
+			typeof this._input !== 'string' &&
+			!(
+				this._input instanceof URL ||
+				this._input instanceof globalThis.Request
+			)
+		) {
 			throw new TypeError('`input` must be a string, URL, or Request');
 		}
 
@@ -251,7 +287,9 @@ export class Ky {
 		return response;
 	}
 
-	protected async _retry<T extends (...arguments_: any) => Promise<any>>(function_: T): Promise<ReturnType<T> | void> {
+	protected async _retry<T extends (...arguments_: any) => Promise<any>>(
+		function_: T
+	):Promise<ReturnType<T> | void> {
 		try {
 			return await function_();
 		} catch (error) {

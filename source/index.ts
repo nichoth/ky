@@ -9,22 +9,25 @@ import {type Mutable} from './utils/types.js';
 
 const createInstance = (defaults?: Partial<Options>): KyInstance => {
 	// eslint-disable-next-line @typescript-eslint/promise-function-async
-	const ky: Partial<Mutable<KyInstance>> = (input: Input, options?: Options) => Ky.create(input, validateAndMerge(defaults, options));
+	const ky: Partial<Mutable<KyInstance>> = (
+		input: Input,
+		options?: Options
+	) => Ky.create(input, validateAndMerge(defaults, options));
 
+	// make the functions like `ky.post`, `ky.get`, etc
 	for (const method of requestMethods) {
 		// eslint-disable-next-line @typescript-eslint/promise-function-async
-		ky[method] = (input: Input, options?: Options) => Ky.create(input, validateAndMerge(defaults, options, {method}));
+		ky[method] = (input: Input, options?: Options) => {
+			return Ky.create(input, validateAndMerge(defaults, options, {method}));
+		}
 	}
 
-	ky.create = (newDefaults?: Partial<Options>) => createInstance(validateAndMerge(newDefaults));
-	ky.extend = (newDefaults?: Partial<Options> | ((parentDefaults: Partial<Options>) => Partial<Options>)) => {
-		if (typeof newDefaults === 'function') {
-			newDefaults = newDefaults(defaults ?? {});
-		}
-
+	ky.create = (newDefaults?: Partial<Options>) => {
+		return createInstance(validateAndMerge(newDefaults));
+	}
+	ky.extend = (newDefaults?: Partial<Options>) => {
 		return createInstance(validateAndMerge(defaults, newDefaults));
-	};
-
+	}
 	ky.stop = stop;
 
 	return ky as KyInstance;

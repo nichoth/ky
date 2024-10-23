@@ -32,11 +32,22 @@ export const supportsRequestStreams = (() => {
 	return duplexAccessed && !hasContentType;
 })();
 
-export const supportsAbortController = typeof globalThis.AbortController === 'function';
-export const supportsResponseStreams = typeof globalThis.ReadableStream === 'function';
+export const supportsAbortController = (
+	typeof globalThis.AbortController === 'function'
+);
+export const supportsResponseStreams = (
+	typeof globalThis.ReadableStream === 'function'
+);
 export const supportsFormData = typeof globalThis.FormData === 'function';
 
-export const requestMethods = ['get', 'post', 'put', 'patch', 'head', 'delete'] as const;
+export const requestMethods = [
+	'get',
+	'post',
+	'put',
+	'patch',
+	'head',
+	'delete'
+] as const;
 
 const validate = <T extends Array<true>>() => undefined as unknown as T;
 validate<[
