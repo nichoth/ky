@@ -46,6 +46,15 @@ Ky targets [modern browsers](#browser-support), Node.js, Bun, and Deno.
 
 It's just a tiny package with no dependencies.
 
+## fork
+This is a fork that merges [the upload progress PR](https://github.com/sindresorhus/ky/pull/632).
+
+### install
+```sh
+npm i -S @nichoth/ky
+```
+
+
 ## Benefits over plain `fetch`
 
 - Simpler API
